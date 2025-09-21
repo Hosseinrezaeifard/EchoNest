@@ -1,0 +1,73 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    container_name: echo-nest-postgres
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - '${DB_PORT}:5432'
+    networks:
+      - echo-nest-net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: echo-nest-app
+    environment:
+      - PORT=${PORT}
+    ports:
+      - '${PORT}:${PORT}'
+    depends_on:
+      - db
+    volumes:
+      - ./src:/app/src
+    networks:
+      - echo-nest-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/healthCheck']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    container_name: echo-nest-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+    ports:
+      - '${PGADMIN_HOST_PORT}:${PGADMIN_CONTAINER_PORT}'
+    depends_on:
+      - db
+    networks:
+      - echo-nest-net
+
+  redis:
+    image: redis:alpine
+    container_name: echo-nest-redis
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+    restart: always
+    networks:
+      - echo-nest-net
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  echo-nest-net:
+    driver: bridge
