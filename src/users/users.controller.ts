@@ -6,39 +6,50 @@ import {
   Param,
   Patch,
   Delete,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { RegisterDto } from '../auth/dto/register.dto';
+import { UserResponseDto } from '../auth/dto/auth-response.dto';
 
 @Controller('users')
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() userData: Partial<User>): Promise<User> {
-    return this.usersService.create(userData);
+  async create(@Body() registerDto: RegisterDto): Promise<UserResponseDto> {
+    const user = await this.usersService.create(registerDto);
+    return new UserResponseDto(user);
   }
 
   @Get()
-  findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+  async findAll(): Promise<UserResponseDto[]> {
+    const users = await this.usersService.findAll();
+    return users.map((user) => new UserResponseDto(user));
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<User> {
-    return this.usersService.findById(id);
+  async findOne(@Param('id') id: string): Promise<UserResponseDto> {
+    const user = await this.usersService.findById(id);
+    return new UserResponseDto(user);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
-    @Body() updateData: Partial<User>,
-  ): Promise<User> {
-    return this.usersService.update(id, updateData);
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    const user = await this.usersService.update(id, updateUserDto);
+    return new UserResponseDto(user);
   }
 
   @Delete(':id')
-  deactivate(@Param('id') id: string): Promise<User> {
-    return this.usersService.deactivate(id);
+  async deactivate(@Param('id') id: string): Promise<UserResponseDto> {
+    const user = await this.usersService.deactivate(id);
+    return new UserResponseDto(user);
   }
 }
