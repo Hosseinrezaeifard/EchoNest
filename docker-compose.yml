@@ -8,13 +8,13 @@ services:
       - POSTGRES_DB=${DB_DATABASE}
     container_name: echo-nest-postgres
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - '${DB_PORT}:5432'
+      - "${DB_PORT}:5432"
     networks:
       - echo-nest-net
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,7 +27,7 @@ services:
     environment:
       - PORT=${PORT}
     ports:
-      - '${PORT}:${PORT}'
+      - "${PORT}:${PORT}"
     depends_on:
       - db
     volumes:
@@ -35,7 +35,7 @@ services:
     networks:
       - echo-nest-net
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/healthCheck']
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthCheck"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -48,7 +48,7 @@ services:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
     ports:
-      - '${PGADMIN_HOST_PORT}:${PGADMIN_CONTAINER_PORT}'
+      - "${PGADMIN_HOST_PORT}:${PGADMIN_CONTAINER_PORT}"
     depends_on:
       - db
     networks:
@@ -58,12 +58,12 @@ services:
     image: redis:alpine
     container_name: echo-nest-redis
     ports:
-      - '${REDIS_PORT}:${REDIS_PORT}'
+      - "${REDIS_PORT}:${REDIS_PORT}"
     restart: always
     networks:
       - echo-nest-net
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -71,3 +71,6 @@ services:
 networks:
   echo-nest-net:
     driver: bridge
+
+volumes:
+  postgres_data:

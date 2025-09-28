@@ -1,0 +1,286 @@
+### Echo Nest Authentication API Testing
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "username": "johndoe",
+  "password": "StrongPass123!",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+
+HTTP/1.1 201  - Created
+x-powered-by: Express
+content-type: application/json; charset=utf-8
+content-length: 482
+etag: W/"1e2-hsLC430bMzVEQKxZ8HG1soMUZPE"
+date: Sat, 27 Sep 2025 21:41:40 GMT
+connection: close
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com"
+}
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "username": "testuser",
+  "password": "StrongPass123!",
+  "firstName": "Test",
+  "lastName": "User"
+}
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "test2@example.com",
+  "username": "testuser2",
+  "password": "weak",
+  "firstName": "Test",
+  "lastName": "User"
+}
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "test3@example.com",
+  "username": "ab",
+  "password": "StrongPass123!",
+  "firstName": "Test",
+  "lastName": "User"
+}
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "test4@example.com",
+  "username": "user-name!",
+  "password": "StrongPass123!",
+  "firstName": "Test",
+  "lastName": "User"
+}
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "username": "johndoe2",
+  "password": "StrongPass123!",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+###
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "StrongPass123!"
+}
+###
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com",
+  "password": "StrongPass123!"
+}
+###
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "StrongPass123!"
+}
+
+HTTP/1.1 201  - Created
+x-powered-by: Express
+content-type: application/json; charset=utf-8
+content-length: 482
+etag: W/"1e2-6FbWbUeQQ2LIBZOsqvciuhrjbYM"
+date: Sat, 27 Sep 2025 21:44:10 GMT
+connection: close
+###
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "password": "StrongPass123!"
+}
+###
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com"
+}
+###
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{}
+###
+GET http://localhost:3000/api/v1/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1OGE3NDVjOS05MDc0LTRmZjItODVlMi1lMWJlYWFhZDI2MTMiLCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwiaWF0IjoxNzU5MDA5NDUwLCJleHAiOjE3NTk2MTQyNTB9.yNOKMkOMloS1FTgX2j1wEBNVUXUM1JxvJj8AH9KX3JY
+
+HTTP/1.1 200  - OK
+x-powered-by: Express
+content-type: application/json; charset=utf-8
+content-length: 172
+etag: W/"ac-EYIYWpDw3vsSBsOkT5L1kn/IBGA"
+date: Sat, 27 Sep 2025 21:44:24 GMT
+connection: close
+###
+GET http://localhost:3000/api/v1/auth/profile
+###
+GET http://localhost:3000/api/v1/auth/profile
+Authorization: InvalidToken
+###
+GET http://localhost:3000/api/v1/auth/profile
+Authorization: Bearer invalid.jwt.token
+###
+GET http://localhost:3000/api/v1/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlOGIyMzQ1Ni03ODkwLTEyMzQtNTY3OC05MGFiY2RlZjEyMzQiLCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwiaWF0IjoxNjMyNzMzMjAwLCJleHAiOjE2MzI3MzMyMDF9.expired_signature
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "testflow@example.com",
+  "username": "testflow",
+  "password": "TestFlow123!",
+  "firstName": "Test",
+  "lastName": "Flow"
+}
+###
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "testflow@example.com",
+  "password": "TestFlow123!"
+}
+###
+GET http://localhost:3000/api/v1/auth/profile
+Authorization: Bearer YOUR_TOKEN_HERE
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "username": "admin",
+  "password": "AdminPass123!",
+  "firstName": "Admin",
+  "lastName": "User"
+}
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "username": "regularuser",
+  "password": "UserPass123!",
+  "firstName": "Regular",
+  "lastName": "User"
+}
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "longpass@example.com",
+  "username": "longpassuser",
+  "password": "ThisIsAVeryLongPasswordWithSpecialChars123!@#$%^&*()",
+  "firstName": "Long",
+  "lastName": "Password"
+}
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "maxuser@example.com",
+  "username": "maxlengthusername20",
+  "password": "MaxUser123!",
+  "firstName": "Max",
+  "lastName": "User"
+}
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "special@example.com",
+  "username": "specialuser",
+  "password": "SpecialUser123!",
+  "firstName": "José",
+  "lastName": "O'Connor"
+}
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "case@example.com",
+  "username": "casetest",
+  "password": "CaseTest123!",
+  "firstName": "Case",
+  "lastName": "Test"
+}
+###
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "CASE@EXAMPLE.COM",
+  "password": "CaseTest123!"
+}
+###
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "perf1@example.com",
+  "username": "perf1",
+  "password": "PerfTest123!",
+  "firstName": "Perf",
+  "lastName": "Test1"
+}
+###
+
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "perf2@example.com",
+  "username": "perf2",
+  "password": "PerfTest123!",
+  "firstName": "Perf",
+  "lastName": "Test2"
+}
+###
+
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "perf3@example.com",
+  "username": "perf3",
+  "password": "PerfTest123!",
+  "firstName": "Perf",
+  "lastName": "Test3"
+}
