@@ -4,6 +4,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { MusicController } from './music.controller';
 import { MusicService } from './music.service';
 import { MusicFile } from './entities/music.entity';
+import { MetadataExtractionService } from './services/metadata-extraction.service';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { MusicFile } from './entities/music.entity';
     }),
   ],
   controllers: [MusicController],
-  providers: [MusicService],
-  exports: [MusicService],
+  providers: [MusicService, MetadataExtractionService],
+  exports: [MusicService, MetadataExtractionService],
 })
 export class MusicModule {}

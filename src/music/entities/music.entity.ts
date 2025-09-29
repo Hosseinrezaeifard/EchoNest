@@ -35,6 +35,42 @@ export class MusicFile {
   @Column({ nullable: true })
   year: number;
 
+  @Column({ nullable: true })
+  trackNumber: number;
+
+  @Column({ nullable: true })
+  totalTracks: number;
+
+  @Column({ nullable: true })
+  discNumber: number;
+
+  @Column({ nullable: true })
+  totalDiscs: number;
+
+  @Column({ nullable: true })
+  albumArtist: string;
+
+  @Column('simple-array', { nullable: true })
+  composers: string[];
+
+  @Column({ nullable: true })
+  comment: string;
+
+  @Column({ nullable: true })
+  bpm: number;
+
+  @Column({ nullable: true })
+  key: string; // Musical key (C, G, Am, etc.)
+
+  @Column({ nullable: true })
+  mood: string;
+
+  @Column({ nullable: true })
+  isrc: string; // International Standard Recording Code
+
+  @Column({ type: 'text', nullable: true })
+  lyrics: string;
+
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   duration: number; // in seconds
 
@@ -49,6 +85,12 @@ export class MusicFile {
 
   @Column({ nullable: true })
   sampleRate: number;
+
+  @Column({ nullable: true })
+  channels: number;
+
+  @Column({ nullable: true })
+  encoding: string;
 
   @Column()
   filePath: string;

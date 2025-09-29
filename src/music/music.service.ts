@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,14 +11,18 @@ import { MusicFile } from './entities/music.entity';
 import { UploadMusicDto } from './dto/upload-music.dto';
 import { MusicResponseDto } from './dto/music-response.dto';
 import { User } from '../users/user.entity';
+import { MetadataExtractionService } from './services/metadata-extraction.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable()
 export class MusicService {
+  private readonly logger = new Logger(MusicService.name);
+
   constructor(
     @InjectRepository(MusicFile)
     private readonly musicRepository: Repository<MusicFile>,
+    private readonly metadataExtractionService: MetadataExtractionService,
   ) {}
 
   async uploadMusic(
@@ -30,23 +35,84 @@ export class MusicService {
       throw new BadRequestException('No file uploaded');
     }
 
-    // Validate file was actually saved to disk
-    if (!fs.existsSync(file.path)) {
-      throw new BadRequestException('File upload failed - file not saved');
+    // Validate file has content
+    if (!file.size || file.size === 0) {
+      throw new BadRequestException('Uploaded file is empty');
     }
 
+    // Validate file was actually saved to disk
+    if (!fs.existsSync(file.path)) {
+      throw new BadRequestException(
+        'File upload failed - file not saved to disk',
+      );
+    }
+
+    // Additional validation: Check if file on disk has content
+    const fileStats = fs.statSync(file.path);
+    if (fileStats.size === 0) {
+      // Clean up empty file
+      fs.unlinkSync(file.path);
+      throw new BadRequestException(
+        'File upload failed - empty file saved to disk',
+      );
+    }
+
+    this.logger.log(
+      `Processing music upload for user ${user.id}: ${file.originalname}`,
+    );
+
     try {
-      // Create music file record only after confirming file upload success
+      // Extract metadata from the uploaded file
+      const extractedMetadata =
+        await this.metadataExtractionService.extractMetadata(file.path);
+
+      this.logger.log(
+        `Metadata extracted: ${this.metadataExtractionService.getMetadataSummary(extractedMetadata)}`,
+      );
+
+      // Create music file record with extracted metadata
+      // User-provided data takes precedence over extracted metadata
       const musicFile = this.musicRepository.create({
         fileName: file.filename,
         originalName: file.originalname,
+
+        // Basic metadata (user input overrides extracted data)
         title:
           uploadMusicDto.title ||
+          extractedMetadata.title ||
           this.extractTitleFromFilename(file.originalname),
-        artist: uploadMusicDto.artist || 'Unknown Artist',
-        album: uploadMusicDto.album || 'Unknown Album',
-        genre: uploadMusicDto.genre || 'Unknown',
-        year: uploadMusicDto.year || new Date().getFullYear(),
+        artist:
+          uploadMusicDto.artist || extractedMetadata.artist || 'Unknown Artist',
+        album:
+          uploadMusicDto.album || extractedMetadata.album || 'Unknown Album',
+        genre: uploadMusicDto.genre || extractedMetadata.genre || 'Unknown',
+        year:
+          uploadMusicDto.year ||
+          extractedMetadata.year ||
+          new Date().getFullYear(),
+
+        // Extended metadata from extraction
+        trackNumber: extractedMetadata.trackNumber,
+        totalTracks: extractedMetadata.totalTracks,
+        discNumber: extractedMetadata.discNumber,
+        totalDiscs: extractedMetadata.totalDiscs,
+        albumArtist: extractedMetadata.albumArtist,
+        composers: extractedMetadata.composers,
+        comment: extractedMetadata.comment,
+        bpm: extractedMetadata.bpm,
+        key: extractedMetadata.key,
+        mood: extractedMetadata.mood,
+        isrc: extractedMetadata.isrc,
+        lyrics: extractedMetadata.lyrics,
+
+        // Audio properties
+        duration: extractedMetadata.duration,
+        bitrate: extractedMetadata.bitrate,
+        sampleRate: extractedMetadata.sampleRate,
+        channels: extractedMetadata.channels,
+        encoding: extractedMetadata.encoding,
+
+        // File properties
         size: file.size,
         format: 'mp3',
         filePath: file.path,
@@ -54,12 +120,48 @@ export class MusicService {
         userId: user.id,
       });
 
-      // Save to database
+      // Save to database first to get the ID
       const savedMusic = await this.musicRepository.save(musicFile);
+
+      // Process artwork if extracted
+      if (extractedMetadata.artwork) {
+        try {
+          const artworkPath =
+            await this.metadataExtractionService.saveExtractedArtwork(
+              extractedMetadata.artwork.data,
+              extractedMetadata.artwork.format,
+              user.id,
+              savedMusic.id,
+            );
+
+          if (artworkPath) {
+            savedMusic.coverArt = artworkPath;
+            await this.musicRepository.save(savedMusic);
+            this.logger.log(
+              `Artwork extracted and saved for music ${savedMusic.id}`,
+            );
+          }
+        } catch (artworkError) {
+          this.logger.warn(
+            `Failed to save extracted artwork for music ${savedMusic.id}`,
+            artworkError,
+          );
+          // Continue without artwork - not a critical failure
+        }
+      }
+
+      this.logger.log(
+        `Successfully processed music upload: ${savedMusic.title} by ${savedMusic.artist}`,
+      );
 
       // Return formatted response
       return new MusicResponseDto(savedMusic);
     } catch (error) {
+      this.logger.error(
+        `Failed to process music upload for user ${user.id}`,
+        error,
+      );
+
       // If database save fails, clean up uploaded file
       if (file && fs.existsSync(file.path)) {
         fs.unlinkSync(file.path);

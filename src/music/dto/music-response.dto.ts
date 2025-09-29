@@ -26,6 +26,42 @@ export class MusicResponseDto {
   year: number;
 
   @Expose()
+  trackNumber: number;
+
+  @Expose()
+  totalTracks: number;
+
+  @Expose()
+  discNumber: number;
+
+  @Expose()
+  totalDiscs: number;
+
+  @Expose()
+  albumArtist: string;
+
+  @Expose()
+  composers: string[];
+
+  @Expose()
+  comment: string;
+
+  @Expose()
+  bpm: number;
+
+  @Expose()
+  key: string;
+
+  @Expose()
+  mood: string;
+
+  @Expose()
+  isrc: string;
+
+  @Expose()
+  lyrics: string;
+
+  @Expose()
   @Transform(({ value }) => parseFloat(value))
   duration: number;
 
@@ -44,6 +80,12 @@ export class MusicResponseDto {
 
   @Expose()
   sampleRate: number;
+
+  @Expose()
+  channels: number;
+
+  @Expose()
+  encoding: string;
 
   @Expose()
   coverArt: string;
