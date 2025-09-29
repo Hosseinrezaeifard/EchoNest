@@ -1,0 +1,103 @@
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  ParseIntPipe,
+  DefaultValuePipe,
+  ClassSerializerInterceptor,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { MusicService } from './music.service';
+import { UploadMusicDto } from './dto/upload-music.dto';
+import { MusicResponseDto } from './dto/music-response.dto';
+import { User } from '../users/user.entity';
+import {
+  musicStorage,
+  coverArtStorage,
+  mp3FileFilter,
+  imageFileFilter,
+  fileSizeLimit,
+} from './config/multer.config';
+import { JwtGuard } from 'src/auth/guard/jwt.guard';
+import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
+
+@Controller('music')
+@UseGuards(JwtGuard)
+@UseInterceptors(ClassSerializerInterceptor)
+export class MusicController {
+  constructor(private readonly musicService: MusicService) {}
+
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('music', {
+      storage: musicStorage,
+      fileFilter: mp3FileFilter,
+      limits: { fileSize: fileSizeLimit.music },
+    }),
+  )
+  async uploadMusic(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() uploadMusicDto: UploadMusicDto,
+    @CurrentUser() user: User,
+  ): Promise<MusicResponseDto> {
+    return this.musicService.uploadMusic(file, uploadMusicDto, user);
+  }
+
+  @Post(':id/cover')
+  @UseInterceptors(
+    FileInterceptor('cover', {
+      storage: coverArtStorage,
+      fileFilter: imageFileFilter,
+      limits: { fileSize: fileSizeLimit.image },
+    }),
+  )
+  async uploadCoverArt(
+    @Param('id') musicId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: User,
+  ): Promise<MusicResponseDto> {
+    return this.musicService.uploadCoverArt(musicId, file, user);
+  }
+
+  @Get()
+  async getUserMusic(
+    @CurrentUser() user: User,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ): Promise<{
+    music: MusicResponseDto[];
+    total: number;
+    totalPages: number;
+    currentPage: number;
+  }> {
+    const result = await this.musicService.getUserMusic(user.id, page, limit);
+    return {
+      ...result,
+      currentPage: page,
+    };
+  }
+
+  @Get(':id')
+  async getMusicById(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<MusicResponseDto> {
+    return this.musicService.getMusicById(id, user.id);
+  }
+
+  @Delete(':id')
+  async deleteMusic(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<{ message: string }> {
+    await this.musicService.deleteMusic(id, user.id);
+    return { message: 'Music file deleted successfully' };
+  }
+}

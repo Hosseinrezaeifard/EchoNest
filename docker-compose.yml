@@ -32,6 +32,7 @@ services:
       - db
     volumes:
       - ./src:/app/src
+      - ./uploads:/app/uploads
     networks:
       - echo-nest-net
     healthcheck:
