@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MusicService } from './music.service';
+import { MusicSharingService } from './services/music-sharing.service';
 import { UploadMusicDto } from './dto/upload-music.dto';
 import { MusicResponseDto } from './dto/music-response.dto';
 import {
@@ -24,6 +25,11 @@ import {
   SuggestionDto,
   SuggestionResultDto,
 } from './dto/search-music.dto';
+import {
+  CreateShareLinkDto,
+  ShareLinkResponseDto,
+  ShareStatsDto,
+} from './dto/sharing.dto';
 import { User } from '../users/user.entity';
 import {
   musicStorage,
@@ -39,7 +45,10 @@ import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
 @UseGuards(JwtGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 export class MusicController {
-  constructor(private readonly musicService: MusicService) {}
+  constructor(
+    private readonly musicService: MusicService,
+    private readonly sharingService: MusicSharingService,
+  ) {}
 
   @Post('upload')
   @UseInterceptors(
@@ -131,5 +140,44 @@ export class MusicController {
   ): Promise<{ message: string }> {
     await this.musicService.deleteMusic(id, user.id);
     return { message: 'Music file deleted successfully' };
+  }
+
+  // =============== SHARING ENDPOINTS ===============
+
+  @Post(':id/share')
+  async createShareLink(
+    @Param('id') musicId: string,
+    @Body() createShareDto: CreateShareLinkDto,
+    @CurrentUser() user: User,
+  ): Promise<ShareLinkResponseDto> {
+    return this.sharingService.createShareLink(
+      musicId,
+      createShareDto,
+      user.id,
+    );
+  }
+
+  @Get('shares')
+  async getUserShares(
+    @CurrentUser() user: User,
+  ): Promise<ShareLinkResponseDto[]> {
+    return this.sharingService.getUserShares(user.id);
+  }
+
+  @Get('shares/:shareId/stats')
+  async getShareStats(
+    @Param('shareId') shareId: string,
+    @CurrentUser() user: User,
+  ): Promise<ShareStatsDto> {
+    return this.sharingService.getShareStats(shareId, user.id);
+  }
+
+  @Delete('shares/:shareId')
+  async deleteShare(
+    @Param('shareId') shareId: string,
+    @CurrentUser() user: User,
+  ): Promise<{ message: string }> {
+    await this.sharingService.deleteShare(shareId, user.id);
+    return { message: 'Share link disabled successfully' };
   }
 }
