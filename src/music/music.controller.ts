@@ -17,6 +17,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { MusicService } from './music.service';
 import { UploadMusicDto } from './dto/upload-music.dto';
 import { MusicResponseDto } from './dto/music-response.dto';
+import {
+  SearchMusicDto,
+  SearchResultDto,
+  SearchFiltersDto,
+  SuggestionDto,
+  SuggestionResultDto,
+} from './dto/search-music.dto';
 import { User } from '../users/user.entity';
 import {
   musicStorage,
@@ -65,6 +72,31 @@ export class MusicController {
   ): Promise<MusicResponseDto> {
     return this.musicService.uploadCoverArt(musicId, file, user);
   }
+
+  // =============== SEARCH ENDPOINTS (Put specific routes FIRST) ===============
+
+  @Get('search')
+  async searchMusic(
+    @Query() searchDto: SearchMusicDto,
+    @CurrentUser() user: User,
+  ): Promise<SearchResultDto> {
+    return this.musicService.searchMusic(searchDto, user.id);
+  }
+
+  @Get('search/filters')
+  async getSearchFilters(@CurrentUser() user: User): Promise<SearchFiltersDto> {
+    return this.musicService.getSearchFilters(user.id);
+  }
+
+  @Get('search/suggestions')
+  async getSuggestions(
+    @Query() suggestionDto: SuggestionDto,
+    @CurrentUser() user: User,
+  ): Promise<SuggestionResultDto> {
+    return this.musicService.getSuggestions(suggestionDto, user.id);
+  }
+
+  // =============== GENERAL MUSIC ENDPOINTS ===============
 
   @Get()
   async getUserMusic(
