@@ -1,102 +1,7 @@
-### Echo Nest Authentication API Testing
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
+### Echo Nest Music Upload API Testing - Episode 2
+### Part 1: File Upload Foundation
 
-{
-  "email": "john.doe@example.com",
-  "username": "johndoe",
-  "password": "StrongPass123!",
-  "firstName": "John",
-  "lastName": "Doe"
-}
-
-HTTP/1.1 201  - Created
-x-powered-by: Express
-content-type: application/json; charset=utf-8
-content-length: 482
-etag: W/"1e2-hsLC430bMzVEQKxZ8HG1soMUZPE"
-date: Sat, 27 Sep 2025 21:41:40 GMT
-connection: close
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
-
-{
-  "email": "test@example.com"
-}
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
-
-{
-  "email": "invalid-email",
-  "username": "testuser",
-  "password": "StrongPass123!",
-  "firstName": "Test",
-  "lastName": "User"
-}
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
-
-{
-  "email": "test2@example.com",
-  "username": "testuser2",
-  "password": "weak",
-  "firstName": "Test",
-  "lastName": "User"
-}
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
-
-{
-  "email": "test3@example.com",
-  "username": "ab",
-  "password": "StrongPass123!",
-  "firstName": "Test",
-  "lastName": "User"
-}
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
-
-{
-  "email": "test4@example.com",
-  "username": "user-name!",
-  "password": "StrongPass123!",
-  "firstName": "Test",
-  "lastName": "User"
-}
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
-
-{
-  "email": "john.doe@example.com",
-  "username": "johndoe2",
-  "password": "StrongPass123!",
-  "firstName": "John",
-  "lastName": "Doe"
-}
-###
-POST http://localhost:3000/api/v1/auth/login
-Content-Type: application/json
-
-{
-  "email": "john.doe@example.com",
-  "password": "StrongPass123!"
-}
-###
-POST http://localhost:3000/api/v1/auth/login
-Content-Type: application/json
-
-{
-  "email": "nonexistent@example.com",
-  "password": "StrongPass123!"
-}
-###
+### 1. User Authentication (Required for all music endpoints)
 POST http://localhost:3000/api/v1/auth/login
 Content-Type: application/json
 
@@ -105,182 +10,209 @@ Content-Type: application/json
   "password": "StrongPass123!"
 }
 
-HTTP/1.1 201  - Created
-x-powered-by: Express
-content-type: application/json; charset=utf-8
-content-length: 482
-etag: W/"1e2-6FbWbUeQQ2LIBZOsqvciuhrjbYM"
-date: Sat, 27 Sep 2025 21:44:10 GMT
-connection: close
-###
-POST http://localhost:3000/api/v1/auth/login
-Content-Type: application/json
-
-{
-  "password": "StrongPass123!"
-}
-###
-POST http://localhost:3000/api/v1/auth/login
-Content-Type: application/json
-
-{
-  "email": "john.doe@example.com"
-}
-###
-POST http://localhost:3000/api/v1/auth/login
-Content-Type: application/json
-
-{}
-###
-GET http://localhost:3000/api/v1/auth/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1OGE3NDVjOS05MDc0LTRmZjItODVlMi1lMWJlYWFhZDI2MTMiLCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwiaWF0IjoxNzU5MDA5NDUwLCJleHAiOjE3NTk2MTQyNTB9.yNOKMkOMloS1FTgX2j1wEBNVUXUM1JxvJj8AH9KX3JY
-
-HTTP/1.1 200  - OK
-x-powered-by: Express
-content-type: application/json; charset=utf-8
-content-length: 172
-etag: W/"ac-EYIYWpDw3vsSBsOkT5L1kn/IBGA"
-date: Sat, 27 Sep 2025 21:44:24 GMT
-connection: close
-###
-GET http://localhost:3000/api/v1/auth/profile
-###
-GET http://localhost:3000/api/v1/auth/profile
-Authorization: InvalidToken
-###
-GET http://localhost:3000/api/v1/auth/profile
-Authorization: Bearer invalid.jwt.token
-###
-GET http://localhost:3000/api/v1/auth/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlOGIyMzQ1Ni03ODkwLTEyMzQtNTY3OC05MGFiY2RlZjEyMzQiLCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwiaWF0IjoxNjMyNzMzMjAwLCJleHAiOjE2MzI3MzMyMDF9.expired_signature
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
-
-{
-  "email": "testflow@example.com",
-  "username": "testflow",
-  "password": "TestFlow123!",
-  "firstName": "Test",
-  "lastName": "Flow"
-}
-###
-POST http://localhost:3000/api/v1/auth/login
-Content-Type: application/json
-
-{
-  "email": "testflow@example.com",
-  "password": "TestFlow123!"
-}
-###
-GET http://localhost:3000/api/v1/auth/profile
+### 2. Upload MP3 with Complete Metadata
+POST http://localhost:3000/api/v1/music/upload
 Authorization: Bearer YOUR_TOKEN_HERE
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
-{
-  "email": "admin@example.com",
-  "username": "admin",
-  "password": "AdminPass123!",
-  "firstName": "Admin",
-  "lastName": "User"
-}
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="music"; filename="bohemian-rhapsody.mp3"
+Content-Type: audio/mpeg
 
-{
-  "email": "user@example.com",
-  "username": "regularuser",
-  "password": "UserPass123!",
-  "firstName": "Regular",
-  "lastName": "User"
-}
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
+< ./youtube/musics/Richard Noe   Teardrops.mp3
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
 
-{
-  "email": "longpass@example.com",
-  "username": "longpassuser",
-  "password": "ThisIsAVeryLongPasswordWithSpecialChars123!@#$%^&*()",
-  "firstName": "Long",
-  "lastName": "Password"
-}
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
+Bohemian Rhapsody
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="artist"
 
-{
-  "email": "maxuser@example.com",
-  "username": "maxlengthusername20",
-  "password": "MaxUser123!",
-  "firstName": "Max",
-  "lastName": "User"
-}
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
+Queen
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="album"
 
-{
-  "email": "special@example.com",
-  "username": "specialuser",
-  "password": "SpecialUser123!",
-  "firstName": "José",
-  "lastName": "O'Connor"
-}
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
+A Night at the Opera
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="genre"
 
-{
-  "email": "case@example.com",
-  "username": "casetest",
-  "password": "CaseTest123!",
-  "firstName": "Case",
-  "lastName": "Test"
-}
-###
-POST http://localhost:3000/api/v1/auth/login
-Content-Type: application/json
+Rock
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="year"
 
-{
-  "email": "CASE@EXAMPLE.COM",
-  "password": "CaseTest123!"
-}
-###
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
+1975
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-{
-  "email": "perf1@example.com",
-  "username": "perf1",
-  "password": "PerfTest123!",
-  "firstName": "Perf",
-  "lastName": "Test1"
-}
-###
+### 3. Upload MP3 with Minimal Metadata (Auto-extract from filename)
+POST http://localhost:3000/api/v1/music/upload
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="music"; filename="test-song.mp3"
+Content-Type: audio/mpeg
 
-{
-  "email": "perf2@example.com",
-  "username": "perf2",
-  "password": "PerfTest123!",
-  "firstName": "Perf",
-  "lastName": "Test2"
-}
-###
+< ./youtube/musics/test.mp3
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-POST http://localhost:3000/api/v1/auth/register
-Content-Type: application/json
+### 4. Upload MP3 with Partial Metadata
+POST http://localhost:3000/api/v1/music/upload
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
-{
-  "email": "perf3@example.com",
-  "username": "perf3",
-  "password": "PerfTest123!",
-  "firstName": "Perf",
-  "lastName": "Test3"
-}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="music"; filename="another-song.mp3"
+Content-Type: audio/mpeg
+
+< ./youtube/musics/Richard Noe   Teardrops.mp3
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+My Awesome Track
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="artist"
+
+Test Artist
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 5. Test Invalid File Type (Should Fail)
+POST http://localhost:3000/api/v1/music/upload
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="music"; filename="test.txt"
+Content-Type: text/plain
+
+This is not an MP3 file
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 6. Test Upload Without Authentication (Should Fail)
+POST http://localhost:3000/api/v1/music/upload
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="music"; filename="test-song.mp3"
+Content-Type: audio/mpeg
+
+< ./youtube/musics/test.mp3
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 7. Upload Cover Art for Music Track
+POST http://localhost:3000/api/v1/music/MUSIC_ID_HERE/cover
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="cover"; filename="album-cover.jpg"
+Content-Type: image/jpeg
+
+< ./test-files/album-cover.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 8. Get User's Music Library (Paginated)
+GET http://localhost:3000/api/v1/music
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 9. Get User's Music Library with Pagination
+GET http://localhost:3000/api/v1/music?page=1&limit=5
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 10. Get Specific Music File Details
+GET http://localhost:3000/api/v1/music/MUSIC_ID_HERE
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 11. Delete Music File
+DELETE http://localhost:3000/api/v1/music/MUSIC_ID_HERE
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 12. Test Access to Another User's Music (Should Fail)
+GET http://localhost:3000/api/v1/music/OTHER_USER_MUSIC_ID
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 13. Upload Multiple Songs for Testing
+POST http://localhost:3000/api/v1/music/upload
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="music"; filename="song1.mp3"
+Content-Type: audio/mpeg
+
+< ./youtube/musics/test.mp3
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+First Song
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 14. Upload Second Song
+POST http://localhost:3000/api/v1/music/upload
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="music"; filename="song2.mp3"
+Content-Type: audio/mpeg
+
+< ./youtube/musics/Richard Noe   Teardrops.mp3
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Second Song
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 15. Test Large File Upload (Should Fail if > 10MB)
+POST http://localhost:3000/api/v1/music/upload
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="music"; filename="large-file.mp3"
+Content-Type: audio/mpeg
+
+< ./test-files/large-file.mp3
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 16. Test Invalid Cover Art File Type
+POST http://localhost:3000/api/v1/music/MUSIC_ID_HERE/cover
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="cover"; filename="document.pdf"
+Content-Type: application/pdf
+
+< ./test-files/document.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 17. Test Upload with All Metadata Fields
+POST http://localhost:3000/api/v1/music/upload
+Authorization: Bearer YOUR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="music"; filename="complete-track.mp3"
+Content-Type: audio/mpeg
+
+< ./youtube/musics/Richard Noe   Teardrops.mp3
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Complete Test Track
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="artist"
+
+Test Artist
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="album"
+
+Test Album
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="genre"
+
+Electronic
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="year"
+
+2024
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
